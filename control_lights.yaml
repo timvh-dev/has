@@ -1,30 +1,31 @@
-# Replace these example entity IDs with the ones from your Home Assistant.
 alias: Toggle light when dimmer is used
 description: Toggles the light and adjusts brightness with ZHA dimmer long presses.
 triggers:
-  - trigger: state
-    entity_id: binary_sensor.YOUR_DIMMER
-    to: "on"
+  - device_id: bd9c9d9b4647b1423446b74d4fbf71d9
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_on
+    trigger: device
     id: toggle
-  - device_id: 1bdec6f7bee8f8d00400c8d3f09da514
+  - device_id: bd9c9d9b4647b1423446b74d4fbf71d9
     domain: zha
     type: remote_button_long_press
     subtype: dim_up
     trigger: device
     id: brightness_increase
-  - device_id: 1bdec6f7bee8f8d00400c8d3f09da514
+  - device_id: bd9c9d9b4647b1423446b74d4fbf71d9
     domain: zha
     type: remote_button_long_press
     subtype: dim_down
     trigger: device
     id: brightness_decrease
-  - device_id: 1bdec6f7bee8f8d00400c8d3f09da514
+  - device_id: bd9c9d9b4647b1423446b74d4fbf71d9
     domain: zha
     type: remote_button_long_release
     subtype: dim_up
     trigger: device
     id: brightness_increase_release
-  - device_id: 1bdec6f7bee8f8d00400c8d3f09da514
+  - device_id: bd9c9d9b4647b1423446b74d4fbf71d9
     domain: zha
     type: remote_button_long_release
     subtype: dim_down
@@ -40,7 +41,7 @@ actions:
         sequence:
           - action: light.toggle
             target:
-              entity_id: light.YOUR_LIGHT
+              device_id: 0bfb9e1cc92f40d7c20f69353e62c060
       - conditions:
           - condition: trigger
             id: brightness_increase
@@ -52,7 +53,7 @@ actions:
               sequence:
                 - action: light.turn_on
                   target:
-                    entity_id: light.YOUR_LIGHT
+                    device_id: 0bfb9e1cc92f40d7c20f69353e62c060
                   data:
                     brightness_step_pct: 2
                     transition: 0.2
@@ -68,7 +69,7 @@ actions:
               sequence:
                 - action: light.turn_on
                   target:
-                    entity_id: light.YOUR_LIGHT
+                    device_id: 0bfb9e1cc92f40d7c20f69353e62c060
                   data:
                     brightness_step_pct: -2
                     transition: 0.2
