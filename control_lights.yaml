@@ -1,6 +1,6 @@
 blueprint:
   name: ZHA dimmer for light
-  description: Toggle a light with a short press and adjust its brightness while holding dim up or dim down.
+  description: Toggle a light with a short press and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
   domain: automation
   input:
     dimmer_device:
@@ -9,12 +9,39 @@ blueprint:
       selector:
         device:
           integration: zha
-    light_device:
-      name: Light device
-      description: Select the device that provides the light entity.
+    light_entity:
+      name: Light
+      description: Select the light entity to control.
       selector:
-        device:
-          integration: zha
+        entity:
+          domain: light
+    brightness_step:
+      name: Brightness step
+      description: Percentage to change brightness on each repeat. Increase this value for faster dimming.
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 25
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+    minimum_brightness:
+      name: Minimum brightness
+      description: Dim-down stops at this brightness and will not turn the light off.
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 50
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+
+variables:
+  selected_light: !input light_entity
+  brightness_step: !input brightness_step
+  minimum_brightness: !input minimum_brightness
 
 triggers:
   - device_id: !input dimmer_device
@@ -57,7 +84,7 @@ actions:
         sequence:
           - action: light.toggle
             target:
-              device_id: !input light_device
+              entity_id: !input light_entity
       - conditions:
           - condition: trigger
             id: brightness_increase
@@ -65,13 +92,16 @@ actions:
           - repeat:
               while:
                 - condition: template
-                  value_template: "{{ true }}"
+                  value_template: >-
+                    {{ not is_state(selected_light, 'on') or
+                       ((state_attr(selected_light, 'brightness') | int(0)) * 100 / 255) < 100 }}
               sequence:
                 - action: light.turn_on
                   target:
-                    device_id: !input light_device
+                    entity_id: !input light_entity
                   data:
-                    brightness_step_pct: 2
+                    brightness_pct: >-
+                      {{ [100, (((state_attr(selected_light, 'brightness') | int(0)) * 100 / 255) | round(0)) + (brightness_step | int)] | min }}
                     transition: 0.2
                 - delay: "00:00:00.2"
       - conditions:
@@ -81,13 +111,16 @@ actions:
           - repeat:
               while:
                 - condition: template
-                  value_template: "{{ true }}"
+                  value_template: >-
+                    {{ is_state(selected_light, 'on') and
+                       (((state_attr(selected_light, 'brightness') | int(0)) * 100 / 255) | round(0)) > (minimum_brightness | int) }}
               sequence:
                 - action: light.turn_on
                   target:
-                    device_id: !input light_device
+                    entity_id: !input light_entity
                   data:
-                    brightness_step_pct: -2
+                    brightness_pct: >-
+                      {{ [minimum_brightness | int, (((state_attr(selected_light, 'brightness') | int(0)) * 100 / 255) | round(0)) - (brightness_step | int)] | max }}
                     transition: 0.2
                 - delay: "00:00:00.2"
 
