@@ -1,6 +1,6 @@
 blueprint:
   name: ZHA Hue dimmer for light
-  description: Turn a light on or off with the Hue dimmer buttons and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
+  description: Toggle a light with the Hue dimmer On button, turn it off with the Off button, and adjust brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
   domain: automation
   input:
     dimmer_device:
@@ -88,7 +88,7 @@ actions:
           - condition: trigger
             id: turn_on
         sequence:
-          - action: light.turn_on
+          - action: light.toggle
             target:
               entity_id: !input light_entity
       - conditions:
