@@ -1,10 +1,10 @@
 blueprint:
   name: ZHA Ikea dimmer for light
-  description: Toggle a light with a short press and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
+  description: Turn a light on or off with the Ikea dimmer buttons and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
   domain: automation
   input:
     dimmer_device:
-      name: ZHA dimmer
+      name: ZHA Ikea dimmer
       description: Select the ZHA remote that sends the button events.
       selector:
         device:
