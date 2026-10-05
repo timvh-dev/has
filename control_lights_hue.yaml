@@ -1,11 +1,11 @@
 blueprint:
-  name: ZHA Ikea dimmer for light
-  description: Toggle a light with a short press and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
+  name: ZHA Hue dimmer for light
+  description: Turn a light on or off with the Hue dimmer buttons and adjust its brightness while holding dim up or dim down. The dimming step and minimum brightness are configurable.
   domain: automation
   input:
     dimmer_device:
-      name: ZHA dimmer
-      description: Select the ZHA remote that sends the button events.
+      name: ZHA Hue dimmer
+      description: Select the Hue dimmer paired directly through ZHA.
       selector:
         device:
           integration: zha
@@ -46,10 +46,16 @@ variables:
 triggers:
   - device_id: !input dimmer_device
     domain: zha
-    type: remote_button_short_press
+    type: remote_button_short_release
     subtype: turn_on
     trigger: device
-    id: toggle
+    id: turn_on
+  - device_id: !input dimmer_device
+    domain: zha
+    type: remote_button_short_release
+    subtype: turn_off
+    trigger: device
+    id: turn_off
   - device_id: !input dimmer_device
     domain: zha
     type: remote_button_long_press
@@ -80,9 +86,16 @@ actions:
   - choose:
       - conditions:
           - condition: trigger
-            id: toggle
+            id: turn_on
         sequence:
-          - action: light.toggle
+          - action: light.turn_on
+            target:
+              entity_id: !input light_entity
+      - conditions:
+          - condition: trigger
+            id: turn_off
+        sequence:
+          - action: light.turn_off
             target:
               entity_id: !input light_entity
       - conditions:
